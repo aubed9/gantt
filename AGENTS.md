@@ -44,3 +44,14 @@ npm run lint           # eslint over src/ (flat config, intentionally lax)
 - Match the style of the file you edit (the codebase mixes older ES5-style JS and newer TS — both are fine in their places).
 - Tabs for indentation.
 - No new runtime dependencies — the library bundle must stay dependency-free.
+
+
+## Agent skills
+
+### Issue tracker
+
+GitHub issues tracked on `aubed9/gantt`. See `docs/agents/issue-tracker.md`.
+
+### Domain docs
+
+Single-context layout (`GLOSSARY.md` + `docs/adr/`). See `docs/agents/domain.md`.
