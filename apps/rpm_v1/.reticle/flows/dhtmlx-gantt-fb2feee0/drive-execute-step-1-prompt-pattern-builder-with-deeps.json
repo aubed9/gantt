@@ -1,0 +1,102 @@
+{
+  "version": 2,
+  "name": "drive-execute-step-1-prompt-pattern-builder-with-deeps",
+  "projectId": "dhtmlx-gantt-fb2feee0",
+  "createdAt": 1794034829296,
+  "steps": [
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "🚀 اجرای آزمون زنده روی DeepSeek (AvalAI)"
+      },
+      "args": {},
+      "action": "click",
+      "page": "/standalone-prompt-engineering-fa/index.html"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "🧪 تست زنده ساختار با DeepSeek (مشاهده رفتار لایه‌ها)"
+      },
+      "args": {},
+      "action": "click",
+      "page": "/standalone-prompt-engineering-fa/index.html"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "🚀 ارسال به DeepSeek و ارزیابی خودکار"
+      },
+      "args": {},
+      "action": "click",
+      "expect": {
+        "kind": "allOf",
+        "predicates": [
+          {
+            "kind": "text",
+            "contains": "سقف طول کلمات"
+          },
+          {
+            "kind": "text",
+            "contains": "پوشش کلمات کلیدی"
+          }
+        ]
+      },
+      "page": "/standalone-prompt-engineering-fa/index.html"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "🚀 اجرای بنچ‌مارک خودکار با DeepSeek (AvalAI)"
+      },
+      "args": {},
+      "action": "click",
+      "expect": {
+        "kind": "text",
+        "contains": "قبول ("
+      },
+      "page": "/standalone-prompt-engineering-fa/index.html"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "🚀 اجرای هم‌زمان روی ۳ مدل (با DeepSeek زنده)"
+      },
+      "args": {},
+      "action": "click",
+      "expect": {
+        "kind": "text",
+        "contains": "event_name"
+      },
+      "page": "/standalone-prompt-engineering-fa/index.html"
+    }
+  ],
+  "startPath": "/standalone-prompt-engineering-fa/index.html",
+  "intent": "Execute Step 1 Prompt Pattern Builder with DeepSeek and verify latency and tokens stats appear",
+  "requires": [
+    {
+      "kind": "route",
+      "pathname": "/standalone-prompt-engineering-fa/index.html"
+    }
+  ],
+  "ensures": [
+    {
+      "kind": "route",
+      "pathname": "/standalone-prompt-engineering-fa/index.html"
+    }
+  ],
+  "author": {
+    "agent": "reticle-cli"
+  },
+  "intentId": "flow:drive-execute-step-1-prompt-pattern-builder-with-deeps"
+}
