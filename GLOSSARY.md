@@ -6,6 +6,10 @@ AI-driven Resource and Project Management platform integrating DHTMLX Gantt, Mas
 
 ### Core Entities
 
+**Tenant (TN)**:
+An isolated organizational boundary governing projects, humans, tasks, events, and reports with query-level separation.
+_Avoid_: Organization, Team, Account, Company, Workspace
+
 **Human (HM)**:
 An individual interacting with the platform, classified as internal (team member, engineer, designer) or external (stakeholder, customer).
 _Avoid_: User, Account, Person
