@@ -19,7 +19,8 @@
 		"start": "concurrently \"npm:watch\" \"node scripts/server.js\" \"vite\"",
 		"server": "node scripts/server.js",
 		"test": "node scripts/test.js",
-		"lint": "eslint src"
+		"lint": "eslint src",
+		"verify:infra": "node scripts/verify-infrastructure.js"
 	},
 	"repository": {
 		"type": "git",
