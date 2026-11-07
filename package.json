@@ -19,7 +19,8 @@
 		"start": "concurrently \"npm:watch\" \"node scripts/server.js\" \"vite\"",
 		"server": "node scripts/server.js",
 		"test": "node scripts/test.js",
-		"lint": "eslint src"
+		"lint": "eslint src",
+		"dev:rpm_v1": "vite --config apps/rpm_v1/vite.config.js"
 	},
 	"repository": {
 		"type": "git",
@@ -39,12 +40,15 @@
 		"dhtmlx"
 	],
 	"devDependencies": {
+		"@reticlehq/browser": "^3.9.0",
+		"@reticlehq/vite-plugin": "^3.9.0",
 		"chalk": "^5.3.0",
 		"chokidar": "^4.0.1",
 		"concurrently": "^8.2.2",
 		"eslint": "^9.12.0",
 		"express": "^4.21.0",
 		"glob": "^13.0.0",
+		"jalaali-js": "^2.0.1",
 		"less": "^4.2.0",
 		"puppeteer": "^24.15.0",
 		"sirv": "^2.0.4",
