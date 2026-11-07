@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>rpm_V1 - پیش‌نمایش درگاه زمان‌واقعی و یکپارچگی عامل ماسترا</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --primary: #38bdf8;
+      --primary-hover: #0284c7;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .header-title h1 {
+      font-size: 1.5rem;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+    .header-title p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+    .connection-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 9999px;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid var(--success);
+      color: var(--success);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .pulse-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .card h2 {
+      font-size: 1.15rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+      color: var(--primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .state-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .state-label {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    .state-value {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+    .badge-open { background: rgba(56, 189, 248, 0.2); color: var(--primary); }
+    .badge-review { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+    .badge-assigned { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+    .badge-progress { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .badge-completed { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+    .badge-pending { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+    .badge-approved { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+    .progress-bar-container {
+      width: 100%;
+      height: 12px;
+      background: var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--success));
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    button {
+      background: var(--primary);
+      color: #0f172a;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    button:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+    button.btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    button.btn-secondary:hover {
+      background: rgba(255,255,255,0.05);
+      border-color: var(--primary);
+    }
+    button.btn-success {
+      background: var(--success);
+      color: #052e16;
+    }
+    button.btn-warning {
+      background: var(--warning);
+      color: #451a03;
+    }
+    /* Tabs */
+    .tabs-nav {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    }
+    .tab-btn {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid transparent;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+    .tab-btn.active {
+      color: var(--primary);
+      background: rgba(56, 189, 248, 0.1);
+      border-color: rgba(56, 189, 248, 0.3);
+    }
+    .walkthrough-step {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      padding: 10px;
+      background: rgba(255,255,255,0.02);
+      border-radius: 8px;
+    }
+    .step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--border);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+    .step-content {
+      flex: 1;
+    }
+    .step-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .step-desc {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+    /* Event Log Table */
+    .event-log {
+      max-height: 280px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-family: monospace;
+      font-size: 0.85rem;
+    }
+    .event-item {
+      padding: 10px;
+      background: rgba(0,0,0,0.25);
+      border-right: 4px solid var(--primary);
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .event-item.event-approved { border-right-color: var(--success); }
+    .event-item.event-review { border-right-color: var(--warning); }
+    .event-header {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+    .event-name {
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .event-data {
+      color: #cbd5e1;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" data-testid="rpm-prototype-container">
+    <header>
+      <div class="header-title">
+        <h1>پیش‌نمایش تعاملی درگاه زمان‌واقعی و کارگزار ماسترا (rpm_V1)</h1>
+        <p>بررسی چرخه حیات ادعای وظیفه، تأیید گزارش پایان کار (EOJ)، بازخورد هوش مصنوعی و پخش زنده رویدادهای SSE</p>
+      </div>
+      <div class="connection-badge" data-testid="sse-status-badge">
+        <span class="pulse-dot"></span>
+        <span id="sse-status-text">متصل به رویدادهای زنده (SSE)</span>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- Current State Display Panel -->
+      <div class="card" data-testid="current-state-panel">
+        <h2>
+          <span>وضعیت سیستم در لحظه</span>
+          <span style="font-size:0.85rem; color:var(--text-muted);">Tenant: TN-1 | Project: PR-100</span>
+        </h2>
+        
+        <div class="state-row">
+          <span class="state-label">شناسه و عنوان تسک:</span>
+          <span class="state-value" id="val-task-title">TS-102 (ارتباط بلادرنگ SSE)</span>
+        </div>
+        <div class="state-row">
+          <span class="state-label">وضعیت چرخه حیات تسک:</span>
+          <span class="badge badge-open" id="badge-task-state" data-testid="task-state-badge">OPEN_FOR_CLAIM</span>
+        </div>
+        <div class="state-row">
+          <span class="state-label">مجری منتصب (Assignee):</span>
+          <span class="state-value" id="val-assignee">نامشخص</span>
+        </div>
+        <div class="state-row">
+          <span class="state-label">آخرین ادعای ثبت‌شده:</span>
+          <span class="state-value" id="val-claim-id">هیچ</span>
+        </div>
+        <div class="state-row">
+          <span class="state-label">امتیاز تطابق هوش مصنوعی (Mastra Match):</span>
+          <span class="state-value" id="val-match-score" style="color:var(--primary);">--</span>
+        </div>
+        <div class="state-row">
+          <span class="state-label">وضعیت آخرین گزارش EOJ:</span>
+          <span class="state-value" id="val-report-status">ثبت نشده</span>
+        </div>
+        <div class="state-row" style="flex-direction:column; align-items:flex-start; gap:4px;">
+          <div style="display:flex; justify-content:space-between; width:100%;">
+            <span class="state-label">پیشرفت تجمعی پروژه PR-100 (مدت‌وزن‌دار):</span>
+            <span class="state-value" id="val-project-progress" data-testid="project-progress-val">۰٪</span>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+        <div style="background:rgba(56,189,248,0.06); padding:10px; border-radius:8px; border:1px solid rgba(56,189,248,0.2);">
+          <div style="font-size:0.8rem; color:var(--primary); font-weight:700; margin-bottom:4px;">تحلیل هوش مصنوعی ماسترا (Mastra Assessment):</div>
+          <div style="font-size:0.85rem; color:#e2e8f0;" id="val-ai-assessment">آماده ارزیابی داوطلبان و گزارش‌ها...</div>
+        </div>
+      </div>
+
+      <!-- Free-Play Buttons & Actions -->
+      <div class="card" data-testid="free-play-panel">
+        <h2>اقدامات تعاملی و فراخوانی API</h2>
+        <div class="button-group">
+          <button data-testid="btn-claim-task" id="btn-claim-task">۱. ثبت ادعای وظیفه (HM-3)</button>
+          <button class="btn-success" data-testid="btn-approve-claim" id="btn-approve-claim">۲. تأیید ادعا توسط مدیر (PM)</button>
+          <button class="btn-secondary" data-testid="btn-start-task" id="btn-start-task">۳. شروع کار (IN_PROGRESS)</button>
+          <button data-testid="btn-submit-eoj" id="btn-submit-eoj">۴. ارسال گزارش پایان کار (EOJ)</button>
+          <button class="btn-success" data-testid="btn-approve-eoj" id="btn-approve-eoj">۵. تأیید گزارش پایان کار (PM)</button>
+          <button class="btn-warning" data-testid="btn-revise-eoj" id="btn-revise-eoj">بازخورد و درخواست بازنگری</button>
+          <button class="btn-secondary" data-testid="btn-transcribe-voice" id="btn-transcribe-voice">تبدیل صوت فارسی (Gemini STT)</button>
+          <button class="btn-secondary" data-testid="btn-reconnect-sse" id="btn-reconnect-sse">آزمایش اتصال مجدد SSE</button>
+        </div>
+
+        <div style="margin-top:10px;">
+          <h3 style="font-size:0.95rem; color:var(--text-muted); margin-bottom:8px;">سناریوهای راهنمایی‌شده (Guided Walkthroughs)</h3>
+          <div class="tabs-nav">
+            <button class="tab-btn active" onclick="switchTab('tab-claim')">سناریو ۱: ادعای وظیفه</button>
+            <button class="tab-btn" onclick="switchTab('tab-eoj')">سناریو ۲: تأیید EOJ</button>
+            <button class="tab-btn" onclick="switchTab('tab-voice')">سناریو ۳: صوت و نیم‌فاصله</button>
+          </div>
+
+          <div id="tab-claim" class="tab-content">
+            <div class="walkthrough-step">
+              <span class="step-number">۱</span>
+              <div class="step-content">
+                <div class="step-title">ارسال درخواست ادعا توسط نیروی انسانی (HM-3)</div>
+                <div class="step-desc">فراخوانی POST /api/tasks/102/claim و اجرای عامل task-claim-ranking-agent ماسترا برای محاسبه امتیاز تطابق.</div>
+              </div>
+            </div>
+            <div class="walkthrough-step">
+              <span class="step-number">۲</span>
+              <div class="step-content">
+                <div class="step-title">تأیید ادعا توسط مدیر پروژه (PM)</div>
+                <div class="step-desc">فراخوانی POST /api/tasks/102/claim/:id/approve، انتقال وضعیت تسک به ASSIGNED و انتشار رویداد task_claim:approved در SSE.</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="tab-eoj" class="tab-content" style="display:none;">
+            <div class="walkthrough-step">
+              <span class="step-number">۱</span>
+              <div class="step-content">
+                <div class="step-title">ثبت گزارش پایان کار EOJ توسط مجری</div>
+                <div class="step-desc">فراخوانی POST /api/reports/eoj و اجرای عامل eoj-assessor-agent جهت ارزیابی اقلام تحویلی.</div>
+              </div>
+            </div>
+            <div class="walkthrough-step">
+              <span class="step-number">۲</span>
+              <div class="step-content">
+                <div class="step-title">تأیید نهایی و محاسبه پیشرفت مدت‌وزن‌دار</div>
+                <div class="step-desc">فراخوانی POST /api/reports/:id/approve، انتقال تسک به COMPLETED (۱۰۰٪) و به‌روزرسانی پیشرفت پروژه PR-100.</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="tab-voice" class="tab-content" style="display:none;">
+            <div class="walkthrough-step">
+              <span class="step-number">۱</span>
+              <div class="step-content">
+                <div class="step-title">تبدیل صوت با نرمال‌سازی فارسی و نیم‌فاصله (ZWNJ)</div>
+                <div class="step-desc">فراخوانی POST /api/audio/transcribe، اعتبارسنجی کدهای سیستمی (TS-102) و اعمال نیم‌فاصله‌های پیشوندی/پسوندی.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live SSE Event Stream Feed -->
+    <div class="card" data-testid="live-events-panel">
+      <h2>
+        <span>پخش زنده رویدادهای سرور (Server-Sent Events)</span>
+        <span style="font-size:0.8rem; color:var(--text-muted);" id="event-count-badge">۰ رویداد دریافت شد</span>
+      </h2>
+      <div class="event-log" id="event-log" data-testid="sse-event-log">
+        <div class="event-item">
+          <div class="event-header">
+            <span class="event-name">SYSTEM:INIT</span>
+            <span>هم‌اکنون</span>
+          </div>
+          <div class="event-data">در حال اتصال به جریان رویدادهای /api/events/stream...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    let currentTaskId = 102;
+    let currentClaimId = null;
+    let currentReportId = null;
+    let eventCount = 0;
+    let lastEventId = 0;
+    let eventSource = null;
+
+    // Connect to SSE stream
+    function connectSSE() {
+      if (eventSource) {
+        eventSource.close();
+      }
+
+      const streamUrl = `/api/events/stream?tenant_id=TN-1${lastEventId > 0 ? '&last_event_id=' + lastEventId : ''}`;
+      eventSource = new EventSource(streamUrl);
+
+      eventSource.onopen = () => {
+        document.getElementById('sse-status-text').textContent = 'متصل به رویدادهای زنده (SSE)';
+        document.querySelector('.pulse-dot').style.background = 'var(--success)';
+      };
+
+      eventSource.onerror = () => {
+        document.getElementById('sse-status-text').textContent = 'در حال تلاش مجدد برای اتصال...';
+        document.querySelector('.pulse-dot').style.background = 'var(--warning)';
+      };
+
+      // Listen for domain events
+      const domainEvents = [
+        'task_claim:created',
+        'task:claim_review_started',
+        'task_claim:approved',
+        'task_claim:rejected',
+        'report:submitted',
+        'report:approved',
+        'report:revision_requested',
+        'project:progress_updated'
+      ];
+
+      domainEvents.forEach(evtName => {
+        eventSource.addEventListener(evtName, (e) => {
+          handleIncomingEvent(evtName, e);
+        });
+      });
+    }
+
+    function handleIncomingEvent(name, event) {
+      eventCount++;
+      if (event.lastEventId) {
+        lastEventId = parseInt(event.lastEventId, 10);
+      }
+      document.getElementById('event-count-badge').textContent = `${eventCount} رویداد دریافت شد`;
+
+      let data = {};
+      try {
+        data = JSON.parse(event.data);
+      } catch (err) {
+        data = { raw: event.data };
+      }
+
+      // Add to log
+      const logContainer = document.getElementById('event-log');
+      const item = document.createElement('div');
+      item.className = 'event-item' + (name.includes('approved') ? ' event-approved' : name.includes('review') ? ' event-review' : '');
+      
+      const timeStr = new Date().toLocaleTimeString('fa-IR');
+      item.innerHTML = `
+        <div class="event-header">
+          <span class="event-name">${name}</span>
+          <span>شناسه: ${event.lastEventId || '--'} | ${timeStr}</span>
+        </div>
+        <div class="event-data">${JSON.stringify(data)}</div>
+      `;
+      logContainer.insertBefore(item, logContainer.firstChild);
+
+      // Update state panel
+      if (name === 'task_claim:created') {
+        currentClaimId = data.claimId;
+        document.getElementById('val-claim-id').textContent = data.claimId;
+        if (data.matchScore) {
+          document.getElementById('val-match-score').textContent = `${data.matchScore}٪`;
+        }
+        if (data.aiAssessment) {
+          document.getElementById('val-ai-assessment').textContent = data.aiAssessment;
+        }
+        setTaskBadge('CLAIM_REVIEW', 'badge-review');
+      } else if (name === 'task_claim:approved') {
+        document.getElementById('val-assignee').textContent = data.approvedHumanId;
+        setTaskBadge('ASSIGNED', 'badge-assigned');
+      } else if (name === 'report:submitted') {
+        currentReportId = data.reportId;
+        document.getElementById('val-report-status').textContent = 'SUBMITTED (در انتظار تأیید)';
+        setTaskBadge('IN_REVIEW', 'badge-review');
+        if (data.aiReview) {
+          document.getElementById('val-ai-assessment').textContent = data.aiReview;
+        }
+      } else if (name === 'report:approved') {
+        document.getElementById('val-report-status').textContent = 'APPROVED (تأیید شد)';
+        setTaskBadge('COMPLETED', 'badge-completed');
+      } else if (name === 'report:revision_requested') {
+        document.getElementById('val-report-status').textContent = 'REVISION_REQUESTED';
+        setTaskBadge('IN_PROGRESS', 'badge-progress');
+      } else if (name === 'project:progress_updated') {
+        const pct = Math.round((data.progress || 0) * 100);
+        document.getElementById('val-project-progress').textContent = `${pct}٪`;
+        document.getElementById('progress-bar-fill').style.width = `${pct}%`;
+      }
+    }
+
+    function setTaskBadge(text, className) {
+      const badge = document.getElementById('badge-task-state');
+      badge.textContent = text;
+      badge.className = `badge ${className}`;
+    }
+
+    // Free-Play Button Handlers
+    document.getElementById('btn-claim-task').addEventListener('click', async () => {
+      try {
+        const res = await fetch(`/api/tasks/${currentTaskId}/claim`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tenant_id: 'TN-1',
+            human_id: 'HM-3',
+          }),
+        });
+        const data = await res.json();
+        currentClaimId = data.claimId;
+      } catch (err) {
+        console.error(err);
+      }
+    });
+
+    document.getElementById('btn-approve-claim').addEventListener('click', async () => {
+      if (!currentClaimId) {
+        alert('لطفاً ابتدا مرحله ۱ (ثبت ادعا) را انجام دهید.');
+        return;
+      }
+      try {
+        await fetch(`/api/tasks/${currentTaskId}/claim/${currentClaimId}/approve`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tenant_id: 'TN-1',
+            reviewer_id: 'HM-1',
+          }),
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    });
+
+    document.getElementById('btn-start-task').addEventListener('click', () => {
+      setTaskBadge('IN_PROGRESS', 'badge-progress');
+    });
+
+    document.getElementById('btn-submit-eoj').addEventListener('click', async () => {
+      try {
+        const res = await fetch('/api/reports/eoj', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tenant_id: 'TN-1',
+            project_id: 'PR-100',
+            task_id: currentTaskId,
+            author_id: 'HM-3',
+            title: 'گزارش پایان کار پیاده‌سازی یکپارچگی بلادرنگ درگاه API',
+            content_markdown: 'تمام مسیرهای REST، استریم SSE و اتصال به عامل ماسترا با موفقیت پیاده‌سازی شد.',
+          }),
+        });
+        const data = await res.json();
+        currentReportId = data.reportId;
+      } catch (err) {
+        console.error(err);
+      }
+    });
+
+    document.getElementById('btn-approve-eoj').addEventListener('click', async () => {
+      if (!currentReportId) {
+        alert('لطفاً ابتدا مرحله ۴ (ارسال گزارش EOJ) را انجام دهید.');
+        return;
+      }
+      try {
+        await fetch(`/api/reports/${currentReportId}/approve`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tenant_id: 'TN-1',
+            reviewer_id: 'HM-1',
+            feedback: 'گزارش و اقلام تحویلی مورد تأیید کامل است.',
+          }),
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    });
+
+    document.getElementById('btn-revise-eoj').addEventListener('click', async () => {
+      if (!currentReportId) return;
+      try {
+        await fetch(`/api/reports/${currentReportId}/revise`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tenant_id: 'TN-1',
+            reviewer_id: 'HM-1',
+            reviewer_comments: 'لطفاً مستندات آزمون بار اضافه گردد.',
+          }),
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    });
+
+    document.getElementById('btn-transcribe-voice').addEventListener('click', async () => {
+      try {
+        const res = await fetch('/api/audio/transcribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tenant_id: 'TN-1',
+            simulated_transcript: 'تسک TS-102 تمام شد و ما گزارش‌ها را ارسال می‌کنیم به مدیر پروژه',
+          }),
+        });
+        const data = await res.json();
+        alert(`متن نرمال‌شده با نیم‌فاصله:\n${data.normalizedText}\n\nتعداد نیم‌فاصله: ${data.zwnjCount}\nکدهای شناسایی‌شده: ${data.entityCodes.join(', ')}`);
+      } catch (err) {
+        console.error(err);
+      }
+    });
+
+    document.getElementById('btn-reconnect-sse').addEventListener('click', () => {
+      connectSSE();
+    });
+
+    // Walkthrough Tab Switcher
+    window.switchTab = function(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+      event.target.classList.add('active');
+      document.getElementById(tabId).style.display = 'block';
+    };
+
+    // Initialize
+    connectSSE();
+  </script>
+</body>
+</html>
