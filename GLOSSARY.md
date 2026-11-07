@@ -48,6 +48,14 @@ _Avoid_: Bid status, Claim phase
 A pooled period during which all incoming Task Claims on an open Task are gathered for PM evaluation and AI-assisted ranking rather than first-come-first-served assignment.
 _Avoid_: Bidding period, Claim queue
 
+**Report State**:
+The discrete phase of a formal Report (`DRAFT`, `SUBMITTED`, `REVISION_REQUESTED`, `APPROVED`).
+_Avoid_: Report status, Approval stage
+
+**Rolling Executive Summary**:
+An AI-generated synthesized project briefing continuously maintained by the Mastra Agent upon report approvals, capturing timeline delta, accomplishments, and risks.
+_Avoid_: Project update note, AI summary
+
 **Knowledge Ingestion**:
 The automated indexing, embedding, and storage of reports and events into the vector store for semantic recall by the Mastra agent.
 _Avoid_: Data sync, Archiving
