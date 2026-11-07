@@ -36,6 +36,18 @@ _Avoid_: Completion note, Wrap-up, Final submission
 A formal request by a team member to take ownership of an open task matching their skills.
 _Avoid_: Task grab, Assignment request, Bid
 
+**Task State**:
+The discrete phase of a Task's lifecycle (`DRAFT`, `OPEN_FOR_CLAIM`, `CLAIM_REVIEW`, `ASSIGNED`, `IN_PROGRESS`, `IN_REVIEW`, `COMPLETED`, `BLOCKED`, `CANCELLED`).
+_Avoid_: Task status, Task stage
+
+**Task Claim State**:
+The discrete phase of an individual Task Claim (`PENDING`, `APPROVED`, `REJECTED`, `WITHDRAWN`).
+_Avoid_: Bid status, Claim phase
+
+**Claim Review Window**:
+A pooled period during which all incoming Task Claims on an open Task are gathered for PM evaluation and AI-assisted ranking rather than first-come-first-served assignment.
+_Avoid_: Bidding period, Claim queue
+
 **Knowledge Ingestion**:
 The automated indexing, embedding, and storage of reports and events into the vector store for semantic recall by the Mastra agent.
 _Avoid_: Data sync, Archiving
