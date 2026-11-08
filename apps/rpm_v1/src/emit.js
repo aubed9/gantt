@@ -26,7 +26,18 @@ if (typeof window !== 'undefined') {
       'eoj-inspector',
       'btn-approve-eoj',
       'btn-request-revision',
-      'task-status-badge'
+      'task-status-badge',
+      // Real-time SSE Monitor Testids
+      'sse-monitor-banner',
+      'sse-status',
+      'metric-dom-rerenders',
+      'metric-task-updates',
+      'metric-project-progress',
+      'btn-sse-claim-approve',
+      'btn-sse-eoj-submit',
+      'btn-sse-eoj-approve',
+      'btn-sse-date-shift',
+      'sse-log-drawer'
     ],
     signals: [
       'variant:changed',
@@ -34,8 +45,15 @@ if (typeof window !== 'undefined') {
       'task:assigned',
       'eoj:approved',
       'eoj:revision_requested',
-      'gantt:rendered'
+      'gantt:rendered',
+      // Real-time SSE & Surgical Gantt Signals
+      'sse:connected',
+      'sse:event_received',
+      'sse:status_changed',
+      'gantt:task_updated',
+      'gantt:progress_rolled_up',
+      'gantt:dates_shifted'
     ],
-    stores: ['rpm_store']
+    stores: ['rpm_store', 'sse_event_store']
   });
 }

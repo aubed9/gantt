@@ -52,6 +52,8 @@
 	"devDependencies": {
 		"@ai-sdk/openai": "^4.0.110",
 		"@mastra/core": "^1.82.0",
+		"@reticlehq/browser": "^3.6.0",
+		"@reticlehq/vite-plugin": "^3.6.0",
 		"@types/cors": "^2.8.19",
 		"@types/express": "^5.0.6",
 		"@types/node": "^26.6.6",
@@ -79,5 +81,8 @@
 		"vite": "^7.3.5",
 		"vitest": "^5.1.0",
 		"zod": "^4.6.7"
+	},
+	"dependencies": {
+		"jalaali-js": "^2.0.1"
 	}
 }

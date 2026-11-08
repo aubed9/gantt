@@ -1,0 +1,19 @@
+{
+  "intents": {
+    "inline:approving-task-claim-via-live-sse-event-updates-cb348420": {
+      "binding": {
+        "contains": "ASSIGNED",
+        "kind": "text"
+      },
+      "declaredAt": 1794156783821,
+      "id": "inline:approving-task-claim-via-live-sse-event-updates-cb348420",
+      "state": "bound",
+      "statement": "Approving task claim via live SSE event updates task state to ASSIGNED and increments fine-grained counter without DOM re-render",
+      "status": "proposed",
+      "subject": "unsorted",
+      "updatedAt": 1794156783830
+    }
+  },
+  "subject": "unsorted",
+  "version": 1
+}
