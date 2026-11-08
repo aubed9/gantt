@@ -27,7 +27,10 @@
 		"server:rpm": "tsx chatbot/server/src/server.ts",
 		"test:mastra": "vitest run test/mastra",
 		"test:gateway": "vitest run test/gateway",
-		"test:unit": "vitest run"
+		"test:unit": "vitest run",
+		"studio": "tsx chatbot/server/src/studio/server.ts",
+		"test:studio": "vitest run test/studio",
+		"verify:compose": "tsx scripts/verify-docker-compose.ts"
 	},
 	"repository": {
 		"type": "git",

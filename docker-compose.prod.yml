@@ -1,0 +1,154 @@
+name: rpm_v1_prod
+
+# Production Docker Compose Stack for rpm_V1 Platform
+# Orchestrates:
+# 1. PostgreSQL 16 + pgvector (:5534 dev host, :5432 container)
+# 2. Express Backend Gateway (:3120) with Single Mastra Instance & Real-Time SSE
+# 3. Mastra Studio Service (:4111) for OpenTelemetry Spans & Tracing
+# 4. Nginx Reverse Proxy (:80) with SSE streaming & buffering controls
+
+services:
+  # ---------------------------------------------------------------------------
+  # 1. PostgreSQL 16 with pgvector Extension
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: rpm_v1_postgres_prod
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_PORT:-5534}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-rpm_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-rpm_secret_password}
+      POSTGRES_DB: ${POSTGRES_DB:-rpm_v1}
+    volumes:
+      - rpm_v1_pgdata_prod:/var/lib/postgresql/data
+      - ./scripts/init-db:/docker-entrypoint-initdb.d:ro
+    networks:
+      - rpm_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-rpm_user} -d ${POSTGRES_DB:-rpm_v1}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ---------------------------------------------------------------------------
+  # 2. Express Backend Gateway (Port 3120)
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.backend
+    container_name: rpm_v1_backend_prod
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3120
+      HOST: 0.0.0.0
+      DATABASE_URL: postgresql://${POSTGRES_USER:-rpm_user}:${POSTGRES_PASSWORD:-rpm_secret_password}@postgres:5432/${POSTGRES_DB:-rpm_v1}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-rpm_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-rpm_secret_password}
+      POSTGRES_DB: ${POSTGRES_DB:-rpm_v1}
+      AVALAI_API_KEY: ${AVALAI_API_KEY}
+      AVALAI_BASE_URL: ${AVALAI_BASE_URL:-https://api.avalai.ir/v1}
+      AVALAI_CHAT_MODEL: ${AVALAI_CHAT_MODEL:-deepseek-v4.1-flash}
+      AVALAI_STT_MODEL: ${AVALAI_STT_MODEL:-gemini-3.8-flash}
+      AVALAI_EMBEDDING_MODEL: ${AVALAI_EMBEDDING_MODEL:-text-embedding-3-small}
+      SEED_ON_BOOT: ${SEED_ON_BOOT:-false}
+    volumes:
+      - rpm_v1_backend_data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - rpm_network
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3120/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+
+  # ---------------------------------------------------------------------------
+  # 3. Mastra Studio Telemetry Service (Port 4111)
+  # ---------------------------------------------------------------------------
+  studio:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.studio
+    container_name: rpm_v1_studio_prod
+    restart: unless-stopped
+    ports:
+      - "${MASTRA_STUDIO_PORT:-4111}:4111"
+    environment:
+      NODE_ENV: production
+      PORT: 4111
+      MASTRA_STUDIO_PORT: 4111
+      HOST: 0.0.0.0
+      DATABASE_URL: postgresql://${POSTGRES_USER:-rpm_user}:${POSTGRES_PASSWORD:-rpm_secret_password}@postgres:5432/${POSTGRES_DB:-rpm_v1}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-rpm_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-rpm_secret_password}
+      POSTGRES_DB: ${POSTGRES_DB:-rpm_v1}
+      AVALAI_API_KEY: ${AVALAI_API_KEY}
+      AVALAI_BASE_URL: ${AVALAI_BASE_URL:-https://api.avalai.ir/v1}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    networks:
+      - rpm_network
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4111/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 15s
+
+  # ---------------------------------------------------------------------------
+  # 4. Nginx Reverse Proxy (Port 80)
+  # ---------------------------------------------------------------------------
+  proxy:
+    image: nginx:1.27-alpine
+    container_name: rpm_v1_proxy_prod
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-80}:80"
+    volumes:
+      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./deploy/nginx/conf.d:/etc/nginx/conf.d:ro
+      - rpm_v1_proxy_logs:/var/log/nginx
+    depends_on:
+      backend:
+        condition: service_healthy
+      studio:
+        condition: service_healthy
+    networks:
+      - rpm_network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:80/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+# -----------------------------------------------------------------------------
+# Internal Production Network & Persistent Volumes
+# -----------------------------------------------------------------------------
+networks:
+  rpm_network:
+    name: rpm_prod_network
+    driver: bridge
+
+volumes:
+  rpm_v1_pgdata_prod:
+    name: rpm_v1_pgdata_prod
+  rpm_v1_backend_data:
+    name: rpm_v1_backend_data
+  rpm_v1_proxy_logs:
+    name: rpm_v1_proxy_logs
