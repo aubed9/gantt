@@ -22,6 +22,13 @@ export type ReportState = 'DRAFT' | 'SUBMITTED' | 'REVISION_REQUESTED' | 'APPROV
 
 export type ReportType = 'EOJ' | 'EVENT' | 'EXECUTIVE';
 
+export type HumanRole =
+  | 'ENGINEER'
+  | 'PROJECT_MANAGER'
+  | 'PRODUCT_OWNER'
+  | 'CTO'
+  | 'EXTERNAL_STAKEHOLDER';
+
 // 1. Tenants Table (TN)
 export interface TenantsTable {
   id: string; // e.g. 'TN-1'
@@ -37,7 +44,7 @@ export interface HumansTable {
   tenant_id: string;
   name: string;
   email: string;
-  role: string;
+  role: ColumnType<HumanRole | string, HumanRole | string | undefined, HumanRole | string>;
   is_internal: ColumnType<boolean, boolean | undefined, boolean>;
   skills: ColumnType<string[], string[] | undefined, string[]>;
   active_tasks_count: ColumnType<number, number | undefined, number>;

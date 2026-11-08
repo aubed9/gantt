@@ -14,6 +14,10 @@ _Avoid_: Organization, Team, Account, Company, Workspace
 An individual interacting with the platform, classified as internal (team member, engineer, designer) or external (stakeholder, customer).
 _Avoid_: User, Account, Person
 
+**Role**:
+The canonical organizational classification of a Human within a Tenant (`ENGINEER`, `PROJECT_MANAGER`, `PRODUCT_OWNER`, `CTO`, `EXTERNAL_STAKEHOLDER`), defining baseline platform capabilities and governance eligibility.
+_Avoid_: User type, Access level, Group, Permission set
+
 **Project (PR)**:
 A high-level organizational initiative governed by a Project Manager (PM), Product Owner (PO), and Chief Technology Officer (CTO).
 _Avoid_: Plan, Workspace, Initiative
